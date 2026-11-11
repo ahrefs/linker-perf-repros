@@ -1,0 +1,23 @@
+kernel 7.2.9+deb13-amd64, nproc 256, affinity 32 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+lld: Debian LLD 19.1.7 (compatible with GNU linkers)
+output 34.1 MiB, 400 objects, out dir /dev/shm/mold-threadpool-work/out
+each batch also runs 32 busy processes of 500 ms CPU
+loadavg before: 103.74 280.33 381.36 9/52798 1818391
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link |
+|---|---|---|---|---|---|
+| mold | default | 8 | 472 | 620 | 139 |
+| mold | 4 | 8 | 242 | 605 | 110 |
+| mold | 1 | 8 | 203 | 605 | 106 |
+| lld | default | 8 | 189 | 607 | 147 |
+| lld | 4 | 8 | 198 | 595 | 138 |
+| lld | 1 | 8 | 229 | 615 | 126 |
+| mold | default | 32 | 631 | 854 | 151 |
+| mold | 4 | 32 | 367 | 699 | 124 |
+| mold | 1 | 32 | 381 | 782 | 126 |
+| lld | default | 32 | 432 | 891 | 174 |
+| lld | 4 | 32 | 378 | 732 | 152 |
+| lld | 1 | 32 | 416 | 756 | 139 |
+
+loadavg after: 91.77 241.96 361.23 10/52739 1843151

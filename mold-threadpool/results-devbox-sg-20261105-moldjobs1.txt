@@ -1,0 +1,13 @@
+Run with MOLD_JOBS=1 in the environment.
+
+kernel 7.2.9+deb13-amd64, nproc 256, affinity 32 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+output 34.1 MiB, 400 objects, out dir /dev/shm/mold-threadpool-work/out
+loadavg before: 85.30 238.13 359.35 6/52744 1843260
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link |
+|---|---|---|---|---|---|
+| mold | default | 32 | 737 | 739 | 440 |
+| mold | 1 | 32 | 2884 | 2888 | 96 |
+
+loadavg after: 61.24 220.26 350.22 8/52659 1852658
