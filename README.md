@@ -1,8 +1,9 @@
 # linker-perf-repros
 
 Standalone reproductions of linker-related performance problems we hit in a
-large OCaml build, written so upstream maintainers can run them. Each one
-needs only a C compiler, Python 3 and the linkers under test.
+large OCaml build, written so upstream maintainers can run them. They need
+Linux x86-64, a C compiler, binutils, Python 3 and the linkers under test.
+See each directory's README for details.
 
 - [`mold-hugepage`](mold-hugepage): parallel starts of a PIE executable whose
   page cache sits in 2 MiB folios cost ~30x the kernel CPU of the same file in
