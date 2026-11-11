@@ -1,0 +1,57 @@
+----------j---e------- ~/linker-perf-recheck/extra/journal
+linked mold: 30.5 MiB, ['mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)']
+linked bfd: 30.5 MiB, (GNU ld)
+host: devbox-us, kernel 7.2.11+deb13-amd64, 256 cpus, THP always [madvise] never
+work dir: ~/linker-perf-recheck/extra/journal (ext4), runs per cell: 1000, passes: 3
+
+pass 0 mold       fresh    folios: 7815 pages; share of pages by folio size: 4 KiB: 100%
+pass 0 mold       fresh    -j1    user   3.94 ms  sys    5.73 ms  per run
+pass 0 mold       fresh    -j128  user   3.68 ms  sys    5.66 ms  per run
+pass 0 mold       evicted  folios: 7815 pages; share of pages by folio size: 4 KiB: 100%
+pass 0 mold       evicted  -j1    user   3.68 ms  sys    5.09 ms  per run
+pass 0 mold       evicted  -j128  user   3.52 ms  sys    5.84 ms  per run
+pass 0 mold       copy     folios: 7815 pages; share of pages by folio size: 4 KiB: 100%
+pass 0 mold       copy     -j1    user   4.07 ms  sys    5.91 ms  per run
+pass 0 mold       copy     -j128  user   3.44 ms  sys    5.97 ms  per run
+pass 0 bfd        fresh    folios: 7816 pages; share of pages by folio size: 4 KiB: 100%
+pass 0 bfd        fresh    -j1    user   2.63 ms  sys    5.86 ms  per run
+pass 0 bfd        fresh    -j128  user   2.39 ms  sys    5.66 ms  per run
+pass 0 bfd        evicted  folios: 7816 pages; share of pages by folio size: 4 KiB: 100%
+pass 0 bfd        evicted  -j1    user   2.36 ms  sys    5.98 ms  per run
+pass 0 bfd        evicted  -j128  user   2.21 ms  sys    6.00 ms  per run
+pass 0 bfd        copy     folios: 7816 pages; share of pages by folio size: 4 KiB: 100%
+pass 0 bfd        copy     -j1    user   2.26 ms  sys    5.36 ms  per run
+pass 0 bfd        copy     -j128  user   2.18 ms  sys    5.93 ms  per run
+pass 1 bfd        fresh    -j1    user   2.68 ms  sys    5.69 ms  per run
+pass 1 bfd        fresh    -j128  user   2.37 ms  sys    5.70 ms  per run
+pass 1 bfd        evicted  -j1    user   3.06 ms  sys    6.02 ms  per run
+pass 1 bfd        evicted  -j128  user   2.54 ms  sys    6.05 ms  per run
+pass 1 bfd        copy     -j1    user   2.10 ms  sys    5.18 ms  per run
+pass 1 bfd        copy     -j128  user   2.27 ms  sys    5.84 ms  per run
+pass 1 mold       fresh    -j1    user   3.67 ms  sys    5.38 ms  per run
+pass 1 mold       fresh    -j128  user   3.63 ms  sys    5.68 ms  per run
+pass 1 mold       evicted  -j1    user   3.50 ms  sys    4.96 ms  per run
+pass 1 mold       evicted  -j128  user   3.59 ms  sys    5.69 ms  per run
+pass 1 mold       copy     -j1    user   3.70 ms  sys    5.61 ms  per run
+pass 1 mold       copy     -j128  user   3.68 ms  sys    5.69 ms  per run
+pass 2 mold       fresh    -j1    user   4.35 ms  sys    6.25 ms  per run
+pass 2 mold       fresh    -j128  user   3.77 ms  sys    5.64 ms  per run
+pass 2 mold       evicted  -j1    user   4.35 ms  sys    6.08 ms  per run
+pass 2 mold       evicted  -j128  user   3.59 ms  sys    5.90 ms  per run
+pass 2 mold       copy     -j1    user   4.25 ms  sys    6.25 ms  per run
+pass 2 mold       copy     -j128  user   3.71 ms  sys    5.69 ms  per run
+pass 2 bfd        fresh    -j1    user   2.79 ms  sys    6.33 ms  per run
+pass 2 bfd        fresh    -j128  user   2.08 ms  sys    5.96 ms  per run
+pass 2 bfd        evicted  -j1    user   2.15 ms  sys    5.29 ms  per run
+pass 2 bfd        evicted  -j128  user   2.20 ms  sys    6.03 ms  per run
+pass 2 bfd        copy     -j1    user   2.29 ms  sys    5.25 ms  per run
+pass 2 bfd        copy     -j128  user   2.40 ms  sys    5.95 ms  per run
+
+median CPU per run over passes (user + sys, ms):
+linker     state                 -j1            -j128
+mold       fresh       9.7 (sys   5.7)    9.3 (sys   5.7)
+mold       evicted     8.8 (sys   5.1)    9.4 (sys   5.8)
+mold       copy       10.0 (sys   5.9)    9.4 (sys   5.7)
+bfd        fresh       8.5 (sys   5.9)    8.0 (sys   5.7)
+bfd        evicted     8.3 (sys   6.0)    8.2 (sys   6.0)
+bfd        copy        7.5 (sys   5.2)    8.1 (sys   5.9)

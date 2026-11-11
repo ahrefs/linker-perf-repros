@@ -1,0 +1,108 @@
+linked mold: 30.5 MiB, ['mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)']
+linked lld: 30.5 MiB, ['Linker: Debian LLD 19.1.7']
+linked bfd: 30.5 MiB, (GNU ld)
+host: devbox-uk, kernel 7.2.11+deb13-amd64, 512 cpus, THP always [madvise] never
+work dir: ~/linker-perf-recheck/hp-1m/mold-thp-ip2eizo6 (ext4), runs per cell: 1000, passes: 3
+
+pass 0 mold       fresh    folios: 7815 pages; share of pages by folio size: 4 KiB: 7%, 8 KiB: 0%, 16 KiB: 0%, 512 KiB: 2%, 2048 KiB: 92%
+pass 0 mold       fresh    -j1    user   2.41 ms  sys    2.75 ms  per run
+pass 0 mold       fresh    -j32   user   2.76 ms  sys   32.63 ms  per run
+pass 0 mold       fresh    -j128  user   2.63 ms  sys  143.52 ms  per run
+pass 0 mold       evicted  folios: 7815 pages; share of pages by folio size: 4 KiB: 3%, 8 KiB: 0%, 16 KiB: 3%, 64 KiB: 3%, 256 KiB: 3%, 512 KiB: 2%, 1024 KiB: 85%
+pass 0 mold       evicted  -j1    user   2.73 ms  sys    2.93 ms  per run
+pass 0 mold       evicted  -j32   user   2.67 ms  sys   11.75 ms  per run
+pass 0 mold       evicted  -j128  user   2.82 ms  sys    4.96 ms  per run
+pass 0 mold       copy     folios: 7815 pages; share of pages by folio size: 4 KiB: 0%, 8 KiB: 0%, 16 KiB: 0%, 64 KiB: 100%
+pass 0 mold       copy     -j1    user   2.48 ms  sys    2.88 ms  per run
+pass 0 mold       copy     -j32   user   2.94 ms  sys    3.18 ms  per run
+pass 0 mold       copy     -j128  user   2.87 ms  sys    3.20 ms  per run
+pass 0 lld        fresh    folios: 7815 pages; share of pages by folio size: 4 KiB: 12%, 16 KiB: 3%, 64 KiB: 3%, 256 KiB: 3%, 1024 KiB: 79%
+pass 0 lld        fresh    -j1    user   2.12 ms  sys    2.94 ms  per run
+pass 0 lld        fresh    -j32   user   1.93 ms  sys   11.14 ms  per run
+pass 0 lld        fresh    -j128  user   1.95 ms  sys   58.01 ms  per run
+pass 0 lld        evicted  folios: 7815 pages; share of pages by folio size: 4 KiB: 3%, 8 KiB: 0%, 16 KiB: 3%, 64 KiB: 3%, 256 KiB: 3%, 512 KiB: 2%, 1024 KiB: 85%
+pass 0 lld        evicted  -j1    user   1.95 ms  sys    3.00 ms  per run
+pass 0 lld        evicted  -j32   user   1.70 ms  sys   14.68 ms  per run
+pass 0 lld        evicted  -j128  user   1.69 ms  sys   40.48 ms  per run
+pass 0 lld        copy     folios: 7815 pages; share of pages by folio size: 4 KiB: 0%, 8 KiB: 0%, 16 KiB: 0%, 64 KiB: 100%
+pass 0 lld        copy     -j1    user   1.74 ms  sys    2.82 ms  per run
+pass 0 lld        copy     -j32   user   2.05 ms  sys    3.27 ms  per run
+pass 0 lld        copy     -j128  user   1.71 ms  sys    3.31 ms  per run
+pass 0 bfd        fresh    folios: 7816 pages; share of pages by folio size: 4 KiB: 0%, 8 KiB: 0%, 16 KiB: 0%, 32 KiB: 0%, 64 KiB: 0%, 128 KiB: 1%, 256 KiB: 1%, 512 KiB: 3%, 1024 KiB: 7%, 2048 KiB: 85%, not present: 192
+pass 0 bfd        fresh    -j1    user   2.26 ms  sys    2.91 ms  per run
+pass 0 bfd        fresh    -j32   user   1.95 ms  sys   33.58 ms  per run
+pass 0 bfd        fresh    -j128  user   1.60 ms  sys  151.15 ms  per run
+pass 0 bfd        evicted  folios: 7816 pages; share of pages by folio size: 4 KiB: 3%, 16 KiB: 3%, 32 KiB: 0%, 64 KiB: 3%, 256 KiB: 3%, 512 KiB: 2%, 1024 KiB: 85%
+pass 0 bfd        evicted  -j1    user   1.87 ms  sys    2.73 ms  per run
+pass 0 bfd        evicted  -j32   user   1.67 ms  sys   14.80 ms  per run
+pass 0 bfd        evicted  -j128  user   1.88 ms  sys   36.06 ms  per run
+pass 0 bfd        copy     folios: 7816 pages; share of pages by folio size: 4 KiB: 0%, 8 KiB: 0%, 16 KiB: 0%, 64 KiB: 100%
+pass 0 bfd        copy     -j1    user   2.26 ms  sys    2.98 ms  per run
+pass 0 bfd        copy     -j32   user   1.91 ms  sys    3.32 ms  per run
+pass 0 bfd        copy     -j128  user   1.88 ms  sys    3.18 ms  per run
+pass 1 lld        fresh    -j1    user   1.87 ms  sys    2.91 ms  per run
+pass 1 lld        fresh    -j32   user   1.86 ms  sys   14.29 ms  per run
+pass 1 lld        fresh    -j128  user   1.75 ms  sys   43.41 ms  per run
+pass 1 lld        evicted  -j1    user   1.68 ms  sys    2.66 ms  per run
+pass 1 lld        evicted  -j32   user   1.78 ms  sys   15.05 ms  per run
+pass 1 lld        evicted  -j128  user   1.63 ms  sys   52.80 ms  per run
+pass 1 lld        copy     -j1    user   1.83 ms  sys    2.85 ms  per run
+pass 1 lld        copy     -j32   user   2.06 ms  sys    3.13 ms  per run
+pass 1 lld        copy     -j128  user   1.94 ms  sys    3.46 ms  per run
+pass 1 bfd        fresh    -j1    user   1.69 ms  sys    2.67 ms  per run
+pass 1 bfd        fresh    -j32   user   1.82 ms  sys   32.08 ms  per run
+pass 1 bfd        fresh    -j128  user   1.58 ms  sys  148.18 ms  per run
+pass 1 bfd        evicted  -j1    user   1.83 ms  sys    2.94 ms  per run
+pass 1 bfd        evicted  -j32   user   1.87 ms  sys   14.93 ms  per run
+pass 1 bfd        evicted  -j128  user   1.65 ms  sys   54.49 ms  per run
+pass 1 bfd        copy     -j1    user   2.20 ms  sys    3.02 ms  per run
+pass 1 bfd        copy     -j32   user   2.10 ms  sys    3.19 ms  per run
+pass 1 bfd        copy     -j128  user   2.22 ms  sys    3.45 ms  per run
+pass 1 mold       fresh    -j1    user   2.64 ms  sys    3.37 ms  per run
+pass 1 mold       fresh    -j32   user   2.60 ms  sys   32.18 ms  per run
+pass 1 mold       fresh    -j128  user   2.57 ms  sys  143.04 ms  per run
+pass 1 mold       evicted  -j1    user   2.40 ms  sys    2.84 ms  per run
+pass 1 mold       evicted  -j32   user   2.81 ms  sys    4.37 ms  per run
+pass 1 mold       evicted  -j128  user   2.74 ms  sys    4.44 ms  per run
+pass 1 mold       copy     -j1    user   3.02 ms  sys    3.12 ms  per run
+pass 1 mold       copy     -j32   user   2.92 ms  sys    3.27 ms  per run
+pass 1 mold       copy     -j128  user   2.90 ms  sys    3.26 ms  per run
+pass 2 bfd        fresh    -j1    user   1.71 ms  sys    2.51 ms  per run
+pass 2 bfd        fresh    -j32   user   1.90 ms  sys   33.73 ms  per run
+pass 2 bfd        fresh    -j128  user   1.56 ms  sys  157.13 ms  per run
+pass 2 bfd        evicted  -j1    user   1.62 ms  sys    2.88 ms  per run
+pass 2 bfd        evicted  -j32   user   1.66 ms  sys   14.41 ms  per run
+pass 2 bfd        evicted  -j128  user   1.70 ms  sys   51.77 ms  per run
+pass 2 bfd        copy     -j1    user   1.98 ms  sys    3.15 ms  per run
+pass 2 bfd        copy     -j32   user   2.05 ms  sys    3.40 ms  per run
+pass 2 bfd        copy     -j128  user   1.95 ms  sys    3.33 ms  per run
+pass 2 mold       fresh    -j1    user   3.06 ms  sys    3.06 ms  per run
+pass 2 mold       fresh    -j32   user   2.83 ms  sys   31.82 ms  per run
+pass 2 mold       fresh    -j128  user   2.60 ms  sys  142.46 ms  per run
+pass 2 mold       evicted  -j1    user   2.70 ms  sys    2.88 ms  per run
+pass 2 mold       evicted  -j32   user   2.51 ms  sys   14.39 ms  per run
+pass 2 mold       evicted  -j128  user   2.54 ms  sys   28.73 ms  per run
+pass 2 mold       copy     -j1    user   2.97 ms  sys    3.18 ms  per run
+pass 2 mold       copy     -j32   user   2.65 ms  sys    3.41 ms  per run
+pass 2 mold       copy     -j128  user   2.82 ms  sys    3.18 ms  per run
+pass 2 lld        fresh    -j1    user   1.91 ms  sys    3.04 ms  per run
+pass 2 lld        fresh    -j32   user   1.77 ms  sys   13.60 ms  per run
+pass 2 lld        fresh    -j128  user   1.72 ms  sys   46.41 ms  per run
+pass 2 lld        evicted  -j1    user   1.88 ms  sys    2.91 ms  per run
+pass 2 lld        evicted  -j32   user   1.73 ms  sys   14.69 ms  per run
+pass 2 lld        evicted  -j128  user   1.52 ms  sys   57.68 ms  per run
+pass 2 lld        copy     -j1    user   1.96 ms  sys    2.84 ms  per run
+pass 2 lld        copy     -j32   user   2.01 ms  sys    3.32 ms  per run
+pass 2 lld        copy     -j128  user   2.10 ms  sys    3.21 ms  per run
+
+median CPU per run over passes (user + sys, ms):
+linker     state                 -j1             -j32            -j128
+mold       fresh       6.0 (sys   3.4)   34.8 (sys  32.2)  145.6 (sys 143.0)
+mold       evicted     5.6 (sys   2.9)   14.4 (sys  11.7)    7.8 (sys   5.0)
+mold       copy        6.1 (sys   3.1)    6.1 (sys   3.2)    6.1 (sys   3.2)
+lld        fresh       5.0 (sys   3.0)   15.4 (sys  13.6)   48.1 (sys  46.4)
+lld        evicted     4.8 (sys   2.9)   16.4 (sys  14.7)   54.4 (sys  52.8)
+lld        copy        4.7 (sys   2.8)    5.3 (sys   3.3)    5.3 (sys   3.2)
+bfd        fresh       4.4 (sys   2.7)   35.5 (sys  33.6)  152.8 (sys 151.2)
+bfd        evicted     4.6 (sys   2.7)   16.5 (sys  14.8)   53.5 (sys  51.8)
+bfd        copy        5.2 (sys   3.0)    5.3 (sys   3.2)    5.3 (sys   3.3)

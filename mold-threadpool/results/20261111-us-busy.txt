@@ -1,0 +1,26 @@
+CPUs 0-31 before the run (mpstat, 5 s):
+mean idle 99%, min idle 85%
+
+kernel 7.2.11+deb13-amd64, nproc 256, affinity 32 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+lld: Debian LLD 19.1.7 (compatible with GNU linkers)
+output 34.1 MiB, 400 objects, out dir /dev/shm/lpr-threadpool-1561369/out
+each batch also runs 32 busy processes of 500 ms CPU
+loadavg before: 69.59 26.16 13.14 2/34353 1785664
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link |
+|---|---|---|---|---|---|
+| mold | default | 8 | 414 | 680 | 121 |
+| mold | 4 | 8 | 245 | 603 | 103 |
+| mold | 1 | 8 | 205 | 609 | 98 |
+| lld | default | 8 | 187 | 620 | 141 |
+| lld | 4 | 8 | 196 | 618 | 129 |
+| lld | 1 | 8 | 255 | 625 | 121 |
+| mold | default | 32 | 581 | 743 | 131 |
+| mold | 4 | 32 | 365 | 690 | 110 |
+| mold | 1 | 32 | 377 | 709 | 107 |
+| lld | default | 32 | 354 | 713 | 151 |
+| lld | 4 | 32 | 345 | 754 | 141 |
+| lld | 1 | 32 | 438 | 752 | 131 |
+
+loadavg after: 59.50 31.20 15.73 3/34247 1809953

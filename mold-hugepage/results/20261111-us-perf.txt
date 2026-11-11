@@ -1,0 +1,90 @@
+prog.mold: 7815 pages; share of pages by folio size: 4 KiB: 13%, 8 KiB: 0%, 16 KiB: 0%, 512 KiB: 2%, 2048 KiB: 85%
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 82K of event 'cpu/cycles/P'
+# Event count (approx.): 439912214845
+#
+# Overhead  Symbol                                             IPC   [IPC Coverage]
+# ........  .................................................  ....................
+#
+    93.63%  [k] native_queued_spin_lock_slowpath               -      -            
+     1.78%  [.] _dl_relocate_object_no_relro                   -      -            
+#
+# (Tip: To show information about system the samples were collected on use perf report --header)
+#
+
+### call graph of the top symbol
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 82K of event 'cpu/cycles/P'
+# Event count (approx.): 439912214845
+#
+# Overhead  Symbol                                             IPC   [IPC Coverage]
+# ........  .................................................  ....................
+#
+    93.63%  [k] native_queued_spin_lock_slowpath               -      -            
+            |          
+             --93.48%--native_queued_spin_lock_slowpath
+                       |          
+                       |--53.69%--_raw_spin_lock_irqsave
+                       |          |          
+                       |           --53.68%--folio_wake_bit
+                       |                     |          
+                       |                     |--27.90%--filemap_fault
+                       |                     |          __do_fault
+                       |                     |          do_fault
+                       |                     |          __handle_mm_fault
+                       |                     |          handle_mm_fault
+                       |                     |          do_user_addr_fault
+                       |                     |          exc_page_fault
+                       |                     |          asm_exc_page_fault
+                       |                     |          |          
+                       |                     |           --27.90%--elf_machine_rela (inlined)
+                       |                     |                     elf_dynamic_do_Rela (inlined)
+                       |                     |                     _dl_relocate_object_no_relro
+                       |                     |                     _dl_relocate_object
+                       |                     |                     _dl_sysdep_start
+                       |                     |                     _dl_start_user
+                       |                     |          
+                       |                      --25.78%--do_fault
+                       |                                __handle_mm_fault
+                       |                                handle_mm_fault
+                       |                                do_user_addr_fault
+                       |                                exc_page_fault
+                       |                                asm_exc_page_fault
+                       |                                |          
+                       |                                 --25.78%--elf_machine_rela (inlined)
+                       |                                           elf_dynamic_do_Rela (inlined)
+                       |                                           _dl_relocate_object_no_relro
+                       |                                           _dl_relocate_object
+                       |                                           _dl_sysdep_start
+                       |                                           _dl_start_user
+                       |          
+                        --39.70%--_raw_spin_lock_irq
+                                  folio_wait_bit_common
+                                  filemap_fault
+                                  __do_fault
+                                  do_fault
+                                  __handle_mm_fault
+                                  handle_mm_fault
+                                  do_user_addr_fault
+                                  exc_page_fault
+                                  asm_exc_page_fault
+                                  elf_machine_rela (inlined)
+                                  elf_dynamic_do_Rela (inlined)
+                                  _dl_relocate_object_no_relro
+                                  _dl_relocate_object
+                                  _dl_sysdep_start
+                                  _dl_start_user
+
+
+
+#
+# (Tip: To show information about system the samples were collected on use perf report --header)
+#

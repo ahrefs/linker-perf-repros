@@ -1,0 +1,2 @@
+prog.thpoff: 7815 pages; share of pages by folio size: 4 KiB: 7%, 8 KiB: 0%, 16 KiB: 0%, 512 KiB: 2%, 2048 KiB: 92%
+prog.thpon: 7815 pages; share of pages by folio size: 4 KiB: 13%, 8 KiB: 0%, 16 KiB: 0%, 512 KiB: 2%, 2048 KiB: 85%

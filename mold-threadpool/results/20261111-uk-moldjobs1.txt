@@ -1,0 +1,16 @@
+CPUs 0-31 before the run (mpstat, 5 s):
+mean idle 100%, min idle 92%
+
+Run with MOLD_JOBS=1 in the environment.
+
+kernel 7.2.11+deb13-amd64, nproc 512, affinity 32 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+output 34.1 MiB, 400 objects, out dir /dev/shm/lpr-threadpool-72544/out
+loadavg before: 147.84 74.83 36.31 2/63249 320513
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link |
+|---|---|---|---|---|---|
+| mold | default | 32 | 626 | 628 | 392 |
+| mold | 1 | 32 | 2349 | 2352 | 79 |
+
+loadavg after: 109.30 70.81 35.81 6/63609 330826

@@ -1,0 +1,12 @@
+date: 2026-11-11T06:23:24Z
+host: devbox-sg
+kernel: 7.2.9+deb13-amd64
+cpu: AMD EPYC 9554 64-Core Processor, nproc 256
+thp: always [madvise] never
+vm.dirty_bytes: 8589934592, vm.dirty_background_bytes: 2147483648
+work fs: /dev/md0 ext4
+repo: 716718e README: list prerequisites accurately
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+lld: Debian LLD 19.1.7 (compatible with GNU linkers)
+bfd: GNU ld (GNU Binutils for Debian) 2.44
+cc: cc (Debian 14.2.0-19) 14.2.0

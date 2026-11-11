@@ -1,0 +1,55 @@
+Direct compaction in mold 3.0.0 on devbox-uk, 2026-11-11.
+
+1. /proc/vmstat compact_* around one run of
+   repro.py --cpus 0-31 --jobs 32 --threads default,1 --runs 3 mold=<mold 3.0.0>
+   (CPUs 0-31 idle before each run; same command on all three hosts)
+
+devbox-sg: idle% CPUs 0-31: 98
+before: compact_stall=79890 compact_fail=73834 compact_success=6056
+| mold | default | 32 | 306 | 308 | 249 |
+| mold | 1 | 32 | 177 | 180 | 156 |
+after:  compact_stall=79890 compact_fail=73834 compact_success=6056
+
+devbox-us: idle% CPUs 0-31: 99
+before: compact_stall=14611 compact_fail=8873 compact_success=5738
+| mold | default | 32 | 227 | 230 | 196 |
+| mold | 1 | 32 | 138 | 142 | 124 |
+after:  compact_stall=14611 compact_fail=8873 compact_success=5738
+
+devbox-uk: idle% CPUs 0-31: 97
+before: compact_stall=5607990 compact_fail=3993852 compact_success=1614138
+| mold | default | 32 | 646 | 648 | 554 |
+| mold | 1 | 32 | 453 | 457 | 329 |
+after:  compact_stall=5628447 compact_fail=4014307 compact_success=1614140
+
+2. perf record -g of repro.py --cpus 0-31 --jobs 8 --threads 1 --runs 3 on
+   devbox-uk, perf report --comm mold --no-children --sort dso,symbol:
+
+| mold | 1 | 8 | 421 | 425 | 336 |
+    19.55%  [kernel.kallsyms]  [k] pfn_to_online_page
+    17.60%  [kernel.kallsyms]  [k] __nr_to_section
+    12.85%  [kernel.kallsyms]  [k] __pageblock_pfn_to_page
+    10.17%  [kernel.kallsyms]  [k] __nr_to_section
+     9.31%  [kernel.kallsyms]  [k] compact_zone
+     4.99%  [kernel.kallsyms]  [k] get_pfnblock_bit
+     2.02%  [kernel.kallsyms]  [k] pageblock_skip_persistent
+
+Call chain of the top symbol:
+pfn_to_online_page <- __pageblock_pfn_to_page <- compact_zone
+  <- compact_zone_order <- try_to_compact_pages <- __alloc_pages_slowpath
+  <- __alloc_frozen_pages_noprof <- alloc_pages_mpol <- vma_alloc_folio_noprof
+  <- vma_alloc_anon_folio_pmd
+
+3. strace -f -e trace=madvise,prctl of two mold 3.0.0 links (warm-up and one
+   measured batch, K=1, --threads=1). Region sizes passed to MADV_HUGEPAGE in
+   the first 20 matching lines, and the PR_SET_THP_DISABLE calls:
+
+prctl(PR_SET_THP_DISABLE, 0, 0, 0, 0) = 0         (4 calls)
+madvise(..., 1073741824, MADV_HUGEPAGE) = 0
+madvise(..., 71539152, MADV_HUGEPAGE) = 0
+madvise(..., 16777216, MADV_HUGEPAGE) = 0
+madvise(..., 7016448, MADV_HUGEPAGE) = 0
+madvise(..., 524288, MADV_HUGEPAGE) = 0
+
+THP settings on all three hosts: enabled [madvise], defrag [madvise],
+shmem_enabled [never].

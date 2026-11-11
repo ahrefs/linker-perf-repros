@@ -9,20 +9,21 @@ slower than `--threads=1` and slower than lld.
 
 The other half, extra writes and slow exec from `MADV_HUGEPAGE` on the
 output, is in [`../mold-hugepage`](../mold-hugepage). This repro writes its
-outputs to tmpfs to keep writeback out of the numbers. On ext4, 64 outputs
-of 35 MiB exceed devbox-sg's 512 MiB `vm.dirty_bytes`, and a batch of 64
-mold links stalled for minutes in `balance_dirty_pages` (lld not tried
-there).
+outputs to tmpfs to keep writeback out of the numbers. On 2026-11-05, with
+outputs on ext4 and devbox-sg's `vm.dirty_bytes` then at 512 MiB, a batch of
+64 mold links of 35 MiB each stalled for minutes in `balance_dirty_pages`
+(lld not tried there).
 
 ## Usage
 
 ```bash
+MOLD=/path/to/mold-3.0.0-x86_64-linux/bin/mold
 ./repro.py --cpus 0-31 --work /dev/shm/mold-threadpool-work --jobs 1,8,32,64 \
-  mold=mold lld=ld.lld-19
+  mold=$MOLD lld=ld.lld-19
 ./repro.py --cpus 0-31 --work /dev/shm/mold-threadpool-work --jobs 8,32 \
-  --busy 32 --busy-ms 500 mold=mold lld=ld.lld-19
+  --busy 32 --busy-ms 500 mold=$MOLD lld=ld.lld-19
 MOLD_JOBS=1 ./repro.py --cpus 0-31 --work /dev/shm/mold-threadpool-work \
-  --jobs 32 --threads default,1 mold=mold
+  --jobs 32 --threads default,1 mold=$MOLD
 ```
 
 `repro.py` compiles a 400-object C program with debug info (34 MiB PIE),
@@ -41,7 +42,7 @@ Prerequisites: Linux x86-64, `cc` (gcc or clang), Python 3.9+.
 devbox-sg, 2026-11-05: Debian kernel 7.2.9, 256 CPUs, run pinned to CPUs
 0-31 (idle before the run, 1-minute loadavg 22 host-wide), outputs on tmpfs,
 mold 3.0.0 (official release binary), Debian lld 19.1.7. Medians in ms. Raw
-output in `results-devbox-sg-20261105-*.txt`.
+output in `results/`.
 
 Links only:
 
@@ -76,12 +77,42 @@ finished:
 - It is not the output write path: with outputs on ext4 instead of tmpfs
   (same host, unpinned, earlier run), a lone link cost about 550 ms CPU at 32
   threads and 105 ms at 1, the same gap.
-- `strace -f -c` of one 32-thread link counts 14,000 to 30,000
-  `sched_yield` calls depending on the run, about 1,000 to 1,500 at 4
-  threads, none at 1. `perf` puts 13% of a 32-thread link in
+- On devbox-sg on 2026-11-05, `strace -f -c` of one 32-thread link counted
+  14,000 to 30,000 `sched_yield` calls depending on the run, about 1,000 to
+  1,500 at 4 threads, none at 1. `perf` put 13% of a 32-thread link in
   `native_queued_spin_lock_slowpath` and 4% in `osq_lock`. The release
   binary is stripped, so the split between idle workers yielding and lock
   contention is not measured.
+
+### Recheck on 2026-11-11
+
+Same commands with mold 3.0.0 on devbox-sg again (kernel 7.2.9) and on
+devbox-us (same CPU model, 2x EPYC 9554, kernel 7.2.11). CPUs 0-31 were 94-99%
+idle before each run. Wall time until the last link finished, ms:
+
+| host | K | mold default | mold `--threads=4` | mold `--threads=1` | lld default |
+|---|---|---|---|---|---|
+| sg | 1 | 23 | 41 | 93 | 80 |
+| sg | 32 | 320 | 226 | 190 | 225 |
+| sg | 64 | 595 | 480 | 373 | 447 |
+| sg | 8, next to 32 busy | 453 | 244 | 220 | 206 |
+| us | 1 | 21 | 41 | 90 | 78 |
+| us | 32 | 222 | 182 | 151 | 193 |
+| us | 64 | 402 | 319 | 301 | 377 |
+| us | 8, next to 32 busy | 414 | 245 | 205 | 187 |
+
+`MOLD_JOBS=1`, K=32: 726 ms on sg, 626 ms on us.
+
+devbox-sg gives the 2026-11-05 numbers again. devbox-us is faster throughout,
+and the default is still the slowest setting from K=32: 1.5x the
+`--threads=1` wall at K=32, 1.3x at K=64.
+
+devbox-uk (2x EPYC 9755, 512 threads, kernel 7.2.11) is left out of the
+tables. There mold 3.0.0 spent about three quarters of its CPU in direct
+memory compaction, under `vma_alloc_anon_folio_pmd`. mold calls
+`MADV_HUGEPAGE` on its heap, THP `defrag` is `madvise`, and memory on that
+host is fragmented. A K=32 run caused about 20,000 compaction stalls on uk and
+none on sg or us (`results/20261111-uk-compaction.txt`).
 
 ## Upstream context
 
@@ -125,6 +156,9 @@ Body:
 > | 8, next to 32 CPU-bound processes, last link done | 472 | 242 | 203 | 189 |
 >
 > `MOLD_JOBS=1` at K=32 takes 737 ms, because it serializes the links.
+>
+> A second host with the same CPU and Linux 7.2.11 gives the same ordering
+> (K=32: 222, 182, 151 and 193 ms).
 >
 > One 32-thread link makes 14,000 to 30,000 `sched_yield` calls (about
 > 1,000 at 4 threads), so much of the extra CPU looks like idle workers
