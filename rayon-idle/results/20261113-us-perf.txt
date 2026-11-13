@@ -1,0 +1,14 @@
+    38.64%  rayon-idle         [.] crossbeam_epoch::default::with_handle::<crossbeam_epoch::default::pin::{closure#0}, crossbeam_epoch::guard::Guard>
+     9.39%  rayon-idle         [.] <crossbeam_deque::deque::Stealer<rayon_core::job::JobRef>>::steal
+     5.30%  rayon-idle         [.] rayon::iter::plumbing::bridge_producer_consumer::helper::<rayon::range::IterProducer<usize>, rayon::iter::for_each::ForEachConsumer<rayon_idle::main::{closure#1}>>
+     4.62%  [vdso]             [.] __vdso_clock_gettime
+     3.50%  rayon-idle         [.] <crossbeam_epoch::internal::Global>::try_advance
+     2.73%  [kernel.kallsyms]  [k] entry_SYSCALL_64
+     2.49%  [kernel.kallsyms]  [k] native_queued_spin_lock_slowpath
+     2.29%  rayon-idle         [.] <core::iter::adapters::chain::Chain<core::ops::range::Range<usize>, core::ops::range::Range<usize>> as core::iter::traits::iterator::Iterator>::try_fold::<(), core::iter::adapters::filter::filter_try_fold<usize, (), core::ops::control_flow::ControlFlow<rayon_core::job::JobRef>, <rayon_core::registry::WorkerThread>::steal::{closure#0}, core::iter::traits::iterator::Iterator::find_map::check<usize, rayon_core::job::JobRef, <rayon_core::registry::WorkerThread>::steal::{closure#1}>::{closure#0}>::{closure#0}, core::ops::control_flow::ControlFlow<rayon_core::job::JobRef>>
+     2.00%  rayon-idle         [.] <rayon_core::sleep::Sleep>::wake_specific_thread
+     1.42%  rayon-idle         [.] <std::sys::sync::mutex::futex::Mutex>::lock_contended
+     1.37%  [kernel.kallsyms]  [k] pick_eevdf
+     1.09%  [kernel.kallsyms]  [k] update_sd_lb_stats.constprop.0
+     1.03%  [kernel.kallsyms]  [k] save_fpregs_to_fpstate
+     0.93%  [kernel.kallsyms]  [k] __schedule
