@@ -1,0 +1,39 @@
+CPUs: all, K: 64,128,256, mold default thread count, 2026-11-13T05:06:15Z
+idle before: 98.99%
+free 2 MiB and 4 MiB blocks per node: n0, 2222/1618 n1, 6103/5743 
+
+### no limit
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold | default | 64 | 184 | 187 | 552 | 0 |
+| mold | default | 128 | 336 | 339 | 502 | 0 |
+| mold | default | 256 | 626 | 629 | 470 | 0 |
+### MOLD_JOBS=1 (mold's own lock)
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold | default | 64 | 1644 | 1645 | 612 | 0 |
+| mold | default | 128 | 3298 | 3300 | 612 | 0 |
+| mold | default | 256 | 6590 | 6591 | 611 | 0 |
+### emulated MOLD_JOBS=1
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs1 | default | 64 | 1721 | 1723 | 600 | 0 |
+| mold-jobs1 | default | 128 | 3408 | 3409 | 596 | 0 |
+| mold-jobs1 | default | 256 | 6817 | 6817 | 595 | 0 |
+### emulated MOLD_JOBS=2
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs2 | default | 64 | 890 | 892 | 566 | 0 |
+| mold-jobs2 | default | 128 | 1791 | 1791 | 571 | 0 |
+| mold-jobs2 | default | 256 | 3513 | 3515 | 572 | 0 |
+### emulated MOLD_JOBS=4
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs4 | default | 64 | 532 | 533 | 637 | 0 |
+| mold-jobs4 | default | 128 | 1016 | 1018 | 622 | 0 |
+| mold-jobs4 | default | 256 | 2047 | 2047 | 623 | 0 |
+### emulated MOLD_JOBS=8
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs8 | default | 64 | 358 | 358 | 764 | 0 |
+| mold-jobs8 | default | 128 | 701 | 702 | 751 | 0 |
+| mold-jobs8 | default | 256 | 1405 | 1406 | 775 | 0 |
+### emulated MOLD_JOBS=16
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs16 | default | 64 | 270 | 271 | 709 | 0 |
+| mold-jobs16 | default | 128 | 530 | 531 | 727 | 0 |
+| mold-jobs16 | default | 256 | 1052 | 1052 | 722 | 0 |

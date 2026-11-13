@@ -1,0 +1,84 @@
+Release binary vs symbolized build (frame pointers, debug info), --no-fork, pinned 0-31, median of 7:
+| objects | build | threads | wall ms | user ms | sys ms |
+|---|---|---|---|---|---|
+| 25 | release | 1 | 8 | 8 | 0 |
+| 25 | release | 32 | 12 | 91 | 51 |
+| 25 | symbolized | 1 | 8 | 4 | 4 |
+| 25 | symbolized | 32 | 12 | 82 | 58 |
+| 400 | release | 1 | 97 | 72 | 24 |
+| 400 | release | 32 | 21 | 287 | 123 |
+| 400 | symbolized | 1 | 99 | 74 | 24 |
+| 400 | symbolized | 32 | 22 | 276 | 126 |
+
+### 25 objects, 32 threads, 20 links: share of 10897 samples by component
+   47.6%  kernel via rayon idle/steal
+   17.5%  kernel via other user
+   11.7%  rayon idle/steal
+   10.7%  kernel via rayon other
+    4.0%  kernel via mold
+    3.0%  mold
+    2.9%  kernel via mimalloc
+    1.6%  rayon other
+    0.6%  other user
+    0.2%  kernel via unknown
+    0.2%  mimalloc
+  top kernel leaf functions:
+   20.3%  finish_task_switch.isra.0  [kernel via rayon idle/steal]
+    6.9%  finish_task_switch.isra.0  [kernel via other user]
+    4.6%  rb_next  [kernel via rayon idle/steal]
+    2.1%  clear_highpages_kasan_tagged  [kernel via mimalloc]
+    1.8%  _raw_spin_unlock  [kernel via rayon idle/steal]
+    1.8%  event_sched_in  [kernel via rayon idle/steal]
+    1.8%  finish_task_switch.isra.0  [kernel via rayon other]
+    1.7%  asm_exc_page_fault  [kernel via other user]
+    1.4%  __rcu_read_unlock  [kernel via rayon idle/steal]
+    1.4%  exit_to_user_mode_loop  [kernel via rayon idle/steal]
+    1.2%  rb_next  [kernel via other user]
+    1.2%  finish_task_switch.isra.0  [kernel via mold]
+  top symbols (self):
+      22.55%  [.] <crossbeam_deque::deque::Stealer<rayon_core::job::JobRef>>::steal
+      13.82%  [k] native_queued_spin_lock_slowpath
+      10.31%  [k] clear_highpages_kasan_tagged
+      10.09%  [.] <rayon_core::registry::WorkerThread>::wait_until_cold
+       4.06%  [.] <crossbeam_epoch::internal::Global>::try_advance
+       3.09%  [k] osq_lock
+       2.45%  [k] entry_SYSCALL_64
+       1.52%  [.] <mold::target::x86_64::X86_64 as mold::target::Target>::apply_reloc_nonalloc
+
+### 400 objects, 32 threads, 20 links: share of 14344 samples by component
+   46.8%  kernel via rayon idle/steal
+   15.7%  kernel via other user
+    9.2%  rayon idle/steal
+    9.0%  kernel via rayon other
+    8.2%  mold
+    5.9%  kernel via mold
+    2.5%  rayon other
+    1.6%  kernel via mimalloc
+    0.4%  other user
+    0.4%  mimalloc
+    0.2%  kernel via unknown
+  top kernel leaf functions:
+   19.3%  finish_task_switch.isra.0  [kernel via rayon idle/steal]
+    4.8%  finish_task_switch.isra.0  [kernel via other user]
+    4.5%  rb_next  [kernel via rayon idle/steal]
+    2.0%  osq_lock  [kernel via other user]
+    1.8%  finish_task_switch.isra.0  [kernel via rayon other]
+    1.7%  _raw_spin_unlock  [kernel via rayon idle/steal]
+    1.6%  exit_to_user_mode_loop  [kernel via rayon idle/steal]
+    1.4%  event_sched_in  [kernel via rayon idle/steal]
+    1.4%  __rcu_read_unlock  [kernel via rayon idle/steal]
+    1.4%  finish_task_switch.isra.0  [kernel via mold]
+    1.3%  asm_exc_page_fault  [kernel via other user]
+    1.2%  native_queued_spin_lock_slowpath  [kernel via mold]
+  top symbols (self):
+      12.22%  [.] <crossbeam_deque::deque::Stealer<rayon_core::job::JobRef>>::steal
+      10.16%  [k] native_queued_spin_lock_slowpath
+       6.74%  [.] <mold::target::x86_64::X86_64 as mold::target::Target>::apply_reloc_nonalloc
+       3.96%  [k] clear_highpages_kasan_tagged
+       3.68%  [.] <rayon_core::registry::WorkerThread>::wait_until_cold
+       3.63%  [k] osq_lock
+       2.36%  [.] __memmove_avx512_unaligned_erms
+       1.96%  [.] <&mold::chunks::merged::layout<mold::target::x86_64::X86_64>::{closure#0} as core::ops::function::FnMut<(usize,)>>::call_mut
+       1.94%  [.] _blake3_hash_many_avx512
+       1.71%  [.] <mold::input_files::ObjectFile<mold::target::x86_64::X86_64>>::plan_symtab::{closure#0}
+       1.56%  [k] __mod_memcg_lruvec_state

@@ -172,6 +172,82 @@ compaction stalls of the cell in parentheses when there were any:
 - lld's default is slower than mold's at K=256 and above on us and uk. On
   sg, where most mold cells had compaction stalls, it is not.
 
+### Where the CPU goes (2026-11-13)
+
+Most of the extra CPU is a fixed cost per link, not something concurrency
+adds. One link, devbox-us, pinned to CPUs 0-31, mold `--no-fork`, median of 7
+(`tools/size_scaling.py`, `results/20261113-us-size-scaling.txt`):
+
+| objects | output | 1 thread: wall, CPU | 32 threads: wall, CPU |
+|---|---|---|---|
+| 25 | 2.1 MiB | 9, 9 | 11, 162 |
+| 100 | 8.5 MiB | 26, 26 | 13, 200 |
+| 400 | 34.1 MiB | 92, 91 | 21, 379 |
+
+Per link, from perf tracepoints (`tools/syscall_counts.py`,
+`results/20261113-us-syscalls.txt`):
+
+| objects | threads | CPU ms (user + sys) | `sched_yield` | context switches | `futex` | `clone3` |
+|---|---|---|---|---|---|---|
+| 25 | 1 | 9 | 0 | 1 | 1 | 0 |
+| 25 | 4 | 23 | 5,489 | 90 | 190 | 3 |
+| 25 | 32 | 154 | 37,997 | 6,667 | 2,810 | 31 |
+| 400 | 1 | 96 | 0 | 2 | 1 | 0 |
+| 400 | 32 | 399 | 49,159 | 9,123 | 3,747 | 31 |
+
+Creating the 31 worker threads is cheap. The yields and context switches
+barely depend on the input size.
+
+To see where the CPU goes, mold 3.0.0 was built from its tag with debug info
+and frame pointers (`CARGO_PROFILE_RELEASE_DEBUG=true RUSTFLAGS="-C
+force-frame-pointers=yes" cargo build --release -p mold-cli`). That build costs
+the same CPU as the release binary. `tools/cpu_split.py` records 20 links at
+32 threads with `perf record -g` and assigns each sample to the first known
+component on its stack (`results/20261113-us-cpu-split.txt`):
+
+| component | 25 objects | 400 objects |
+|---|---|---|
+| Rayon idle loop (`WorkerThread::wait_until_cold`, crossbeam deque steal and epoch), incl. the kernel time under it | 59% | 56% |
+| other Rayon code, incl. kernel | 12% | 12% |
+| kernel, caller not resolved (likely more yields) | 18% | 16% |
+| mold's own code, incl. kernel | 7% | 14% |
+| mimalloc, incl. kernel | 3% | 2% |
+
+The hottest single function is `crossbeam_deque::Stealer::steal` (23% and
+12%). perf adds cost to every context switch, so the kernel shares are a bit
+high; the CPU numbers above are measured without perf. The same idle loop
+shows up without mold in [`../rayon-idle`](../rayon-idle).
+
+### Limiting concurrent mold processes (2026-11-13)
+
+mold 3.0.0 honours only `MOLD_JOBS=1` (`src/jobs.rs` checks for exactly `"1"`;
+other values do nothing). `moldjobs.c` emulates `MOLD_JOBS=N` for any N: it
+waits for one of N slots of a POSIX semaphore, runs mold with its default 32
+threads, and frees the slot when mold exits.
+
+```bash
+cc -O2 -o moldjobs moldjobs.c
+MOLD_REAL=$MOLD MOLD_JOBS_N=4 MOLD_JOBS_SEM=/moldjobs-4 \
+  ./repro.py --cpus 0-31 --jobs 32,64 --threads default mold-jobs4=$PWD/moldjobs
+```
+
+devbox-us, time until the last link finished, ms. The `--threads` rows come
+from the runs above on the same host and day (`results/20261113-us-moldjobs-*`):
+
+| setting | 32 CPUs, K=32 | 32 CPUs, K=64 | 256 CPUs, K=128 | 256 CPUs, K=256 |
+|---|---|---|---|---|
+| no limit | 227 | 397 | 336 | 626 |
+| `MOLD_JOBS=1` (mold's own lock) | 627 | 1,247 | 3,298 | 6,590 |
+| emulated `MOLD_JOBS=4` | 325 | 651 | 1,016 | 2,047 |
+| emulated `MOLD_JOBS=16` | 244 | 457 | 530 | 1,052 |
+| no limit, `--threads=4` | 163 | 326 | 209 | 379 |
+| no limit, `--threads=1` | 138 | 290 | 235 | 370 |
+
+Limiting the number of mold processes is slower than no limit at every N
+tried (1, 2, 4, 8 and 16). The emulation adds 3-9% over mold's own lock at
+N=1. One link at a time with 32 threads leaves most of the 32 threads idle,
+because a small link is only about 4x faster with 32 threads than with 1.
+
 ## Upstream context
 
 - Default thread count is `min(available_parallelism, 32)` in 3.0.0 and on

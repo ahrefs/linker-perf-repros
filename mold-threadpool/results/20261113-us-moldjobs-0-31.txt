@@ -1,0 +1,32 @@
+CPUs: 0-31, K: 32,64, mold default thread count, 2026-11-13T05:05:00Z
+idle before: 88.45%
+free 2 MiB and 4 MiB blocks per node: n0, 2185/1557 n1, 6098/5415 
+
+### no limit
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold | default | 32 | 227 | 229 | 196 | 0 |
+| mold | default | 64 | 397 | 398 | 185 | 0 |
+### MOLD_JOBS=1 (mold's own lock)
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold | default | 32 | 627 | 628 | 402 | 0 |
+| mold | default | 64 | 1247 | 1248 | 401 | 0 |
+### emulated MOLD_JOBS=1
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs1 | default | 32 | 684 | 685 | 402 | 0 |
+| mold-jobs1 | default | 64 | 1349 | 1350 | 400 | 0 |
+### emulated MOLD_JOBS=2
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs2 | default | 32 | 474 | 476 | 324 | 0 |
+| mold-jobs2 | default | 64 | 927 | 927 | 323 | 0 |
+### emulated MOLD_JOBS=4
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs4 | default | 32 | 325 | 327 | 258 | 0 |
+| mold-jobs4 | default | 64 | 651 | 653 | 250 | 0 |
+### emulated MOLD_JOBS=8
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs8 | default | 32 | 266 | 266 | 216 | 0 |
+| mold-jobs8 | default | 64 | 529 | 530 | 224 | 0 |
+### emulated MOLD_JOBS=16
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+| mold-jobs16 | default | 32 | 244 | 246 | 208 | 0 |
+| mold-jobs16 | default | 64 | 457 | 459 | 197 | 0 |

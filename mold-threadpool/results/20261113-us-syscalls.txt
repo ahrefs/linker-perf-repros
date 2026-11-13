@@ -1,0 +1,25 @@
+| objects | threads | user ms | sys ms | sched_switch | sched_migrate_task | page_fault_user | page_fault_kernel | sched_yield | futex | clone3 | mmap | madvise | munmap | thp faults |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 25 | 1 | 6 | 3 | 1 | 0 | 1884 | 8 | 0 | 1 | 0 | 72 | 35 | 3 | 4 |
+| 25 | 4 | 11 | 12 | 90 | 1 | 2032 | 9 | 5489 | 190 | 3 | 81 | 35 | 6 | 8 |
+| 25 | 32 | 82 | 72 | 6667 | 130 | 2813 | 8 | 37997 | 2810 | 31 | 165 | 35 | 21 | 34 |
+| 400 | 1 | 76 | 20 | 2 | 3 | 11227 | 9 | 0 | 1 | 0 | 447 | 417 | 3 | 26 |
+| 400 | 4 | 119 | 32 | 169 | 7 | 11398 | 9 | 7678 | 291 | 3 | 456 | 417 | 6 | 30 |
+| 400 | 32 | 241 | 158 | 9123 | 171 | 12943 | 9 | 49159 | 3747 | 31 | 540 | 417 | 21 | 65 |
+
+### kernel symbols, perf record -g, 32 threads, 400 objects, 20 links
+     8.79%  [kernel.kallsyms]     [k] native_queued_spin_lock_slowpath
+     4.43%  [kernel.kallsyms]     [k] clear_highpages_kasan_tagged
+     4.30%  [kernel.kallsyms]     [k] osq_lock
+     3.14%  mold                  [.] 0x0000000002702fe2
+     2.18%  mold                  [.] 0x0000000002702fd3
+     1.70%  mold                  [.] 0x0000000002702fe9
+     1.21%  libc.so.6             [.] __memmove_avx512_unaligned_erms
+     1.00%  [kernel.kallsyms]     [k] do_syscall_64
+     8.79%  [k] native_queued_spin_lock_slowpath
+            |          
+             --8.46%--native_queued_spin_lock_slowpath
+                       |          
+                        --7.96%--_raw_spin_lock
+                                  |          
+                                   --5.36%--pte_offset_map_lock
