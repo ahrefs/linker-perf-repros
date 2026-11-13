@@ -1,0 +1,29 @@
+CPUs 0-31 before the run (mpstat, 5 s):
+mean idle 100%, min idle 96%
+free 2 MiB and 4 MiB blocks per node before the run (/proc/buddyinfo order 9, 10):
+  node 0, order9=709 order10=163
+  node 1, order9=460 order10=94
+
+kernel 7.2.11+deb13-amd64, nproc 512, affinity 32 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+lld: Debian LLD 19.1.7 (compatible with GNU linkers)
+output 34.1 MiB, 400 objects, out dir /dev/shm/lpr-tp-406566/out
+each batch also runs 32 busy processes of 500 ms CPU
+loadavg before: 133.62 41.07 31.71 4/67589 462944
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+|---|---|---|---|---|---|---|
+| mold | default | 8 | 411 | 614 | 106 | 0 |
+| mold | 4 | 8 | 209 | 591 | 91 | 0 |
+| mold | 1 | 8 | 208 | 613 | 89 | 0 |
+| lld | default | 8 | 173 | 625 | 126 | 0 |
+| lld | 4 | 8 | 185 | 611 | 115 | 0 |
+| lld | 1 | 8 | 246 | 630 | 110 | 0 |
+| mold | default | 32 | 582 | 752 | 118 | 0 |
+| mold | 4 | 32 | 358 | 724 | 100 | 0 |
+| mold | 1 | 32 | 317 | 698 | 97 | 0 |
+| lld | default | 32 | 355 | 763 | 138 | 0 |
+| lld | 4 | 32 | 327 | 709 | 126 | 0 |
+| lld | 1 | 32 | 438 | 782 | 119 | 0 |
+
+loadavg after: 102.99 50.24 35.52 3/67674 487225

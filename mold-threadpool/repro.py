@@ -130,6 +130,11 @@ def batch(cmd, args, outdir, k, busy, nbusy):
     return links_done, time.monotonic() - start, link_cpu
 
 
+def compact_stalls():
+    with open("/proc/vmstat") as f:
+        return next(int(line.split()[1]) for line in f if line.startswith("compact_stall "))
+
+
 def parse_cpus(spec):
     cpus = set()
     for part in spec.split(","):
@@ -175,15 +180,17 @@ def main():
         print(f"each batch also runs {o.busy} busy processes of {o.busy_ms} ms CPU")
     print(f"loadavg before: {open('/proc/loadavg').read().strip()}")
     print()
-    print("| linker | --threads | K | links done ms | batch done ms | CPU ms / link |")
-    print("|---|---|---|---|---|---|")
+    print("| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |")
+    print("|---|---|---|---|---|---|---|")
     for k in map(int, o.jobs.split(",")):
         for name, path in linkers:
             for t in o.threads.split(","):
                 cmd = [path] if t == "default" else [path, f"--threads={t}"]
+                stalls = compact_stalls()
                 res = [batch(cmd, args, outdir, k, busy, o.busy) for _ in range(o.runs + 1)][1:]
+                stalls = compact_stalls() - stalls
                 links_done, batch_done, cpu = (statistics.median(r[i] for r in res) for i in range(3))
-                print(f"| {name} | {t} | {k} | {links_done * 1000:.0f} | {batch_done * 1000:.0f} | {cpu / k * 1000:.0f} |", flush=True)
+                print(f"| {name} | {t} | {k} | {links_done * 1000:.0f} | {batch_done * 1000:.0f} | {cpu / k * 1000:.0f} | {stalls} |", flush=True)
     print()
     print(f"loadavg after: {open('/proc/loadavg').read().strip()}")
 

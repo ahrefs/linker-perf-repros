@@ -1,0 +1,4 @@
+devbox-sg
+7.2.9+deb13-amd64
+mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+Debian LLD 19.1.7 (compatible with GNU linkers)

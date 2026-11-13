@@ -33,7 +33,9 @@ finished and the CPU per link, counting mold's forked worker (the script is a
 child subreaper). `--busy N` adds N processes that each burn `--busy-ms` of
 CPU in the same batch, standing in for compilers running next to the links.
 `--cpus` pins everything, which also sets mold's default thread count (32 on
-32 CPUs). lld is optional.
+32 CPUs). lld is optional. The last column counts host-wide compaction stalls
+(`compact_stall` in `/proc/vmstat`) during each cell, which flags cells where
+the kernel compacted memory to back mold's `MADV_HUGEPAGE` heap.
 
 Prerequisites: Linux x86-64, `cc` (gcc or clang), Python 3.9+.
 
@@ -84,35 +86,51 @@ finished:
   binary is stripped, so the split between idle workers yielding and lock
   contention is not measured.
 
-### Recheck on 2026-11-11
+### Recheck on 2026-11-13
 
-Same commands with mold 3.0.0 on devbox-sg again (kernel 7.2.9) and on
-devbox-us (same CPU model, 2x EPYC 9554, kernel 7.2.11). CPUs 0-31 were 94-99%
-idle before each run. Wall time until the last link finished, ms:
+Same commands with mold 3.0.0 on devbox-sg (2x EPYC 9554, kernel 7.2.9),
+devbox-us (same CPU, kernel 7.2.11) and devbox-uk (2x EPYC 9755, 512 threads,
+kernel 7.2.11). CPUs 0-31 were 97-100% idle on average before each run. Wall
+time until the last link finished, ms, with the compaction stalls of the cell
+in parentheses when there were any:
 
 | host | K | mold default | mold `--threads=4` | mold `--threads=1` | lld default |
 |---|---|---|---|---|---|
-| sg | 1 | 23 | 41 | 93 | 80 |
-| sg | 32 | 320 | 226 | 190 | 225 |
-| sg | 64 | 595 | 480 | 373 | 447 |
-| sg | 8, next to 32 busy | 453 | 244 | 220 | 206 |
-| us | 1 | 21 | 41 | 90 | 78 |
-| us | 32 | 222 | 182 | 151 | 193 |
-| us | 64 | 402 | 319 | 301 | 377 |
-| us | 8, next to 32 busy | 414 | 245 | 205 | 187 |
+| sg | 1 | 25 | 37 | 91 | 81 |
+| sg | 32 | 332 (10,343) | 241 (2,941) | 237 (1,597) | 236 |
+| sg | 64 | 605 (1,153) | 472 | 402 | 449 |
+| sg | 8, next to 32 busy | 501 | 214 | 207 | 203 |
+| us | 1 | 23 | 34 | 89 | 80 |
+| us | 32 | 223 | 163 | 138 | 199 |
+| us | 64 | 439 | 326 | 290 | 373 |
+| us | 8, next to 32 busy | 419 | 231 | 204 | 192 |
+| uk | 1 | 21 (14) | 31 | 81 | 71 |
+| uk | 32 | 232 (1,015) | 170 | 133 | 199 |
+| uk | 64 | 475 (8,223) | 337 | 293 | 367 |
+| uk | 8, next to 32 busy | 411 | 209 | 208 | 173 |
 
-`MOLD_JOBS=1`, K=32: 726 ms on sg, 626 ms on us.
+`MOLD_JOBS=1`, K=32: 744 ms on sg, 620 ms on us and uk.
 
-devbox-sg gives the 2026-11-05 numbers again. devbox-us is faster throughout,
-and the default is still the slowest setting from K=32: 1.5x the
-`--threads=1` wall at K=32, 1.3x at K=64.
+- On all three hosts the default is the slowest setting from K=32: 1.4x to
+  1.7x the `--threads=1` wall at K=32, 1.5x to 1.6x at K=64, and slower than
+  lld's default.
+- Next to 32 busy processes at K=8, links finish 2.0x to 2.4x later with the
+  default than with `--threads=1`.
+- devbox-sg matches its 2026-11-05 numbers, and a 2026-11-11 run on sg and
+  us gave the same results (`results/20261111-*`).
 
-devbox-uk (2x EPYC 9755, 512 threads, kernel 7.2.11) is left out of the
-tables. There mold 3.0.0 spent about three quarters of its CPU in direct
-memory compaction, under `vma_alloc_anon_folio_pmd`. mold calls
-`MADV_HUGEPAGE` on its heap, THP `defrag` is `madvise`, and memory on that
-host is fragmented. A K=32 run caused about 20,000 compaction stalls on uk and
-none on sg or us (`results/20261111-uk-compaction.txt`).
+Only mold cells had compaction stalls, mostly with the default thread count.
+mold calls `MADV_HUGEPAGE` on its heap (1 GiB, 16 MiB and 512 KiB regions).
+With THP `defrag` set to `madvise`, a page fault in such a region compacts
+memory synchronously when the local NUMA node has no free 2 MiB block. Before
+the links run, the NUMA nodes of CPUs 0-31 had 259 and 718 free 2 MiB blocks
+on sg and 515 on uk, against 2,086 on us, which had no stalls. The stalls cost
+little this time: uk at K=32 took 232 ms with the default, us 223 ms.
+
+They can cost a lot more. On 2026-11-11 devbox-uk had run out of free 2 MiB
+blocks, and mold spent about three quarters of its CPU in compaction: one
+link with default threads took 395 ms and 6.3 s of CPU
+(`results/20261111-uk-*`, `results/20261111-uk-compaction.txt`).
 
 ## Upstream context
 
@@ -157,8 +175,8 @@ Body:
 >
 > `MOLD_JOBS=1` at K=32 takes 737 ms, because it serializes the links.
 >
-> A second host with the same CPU and Linux 7.2.11 gives the same ordering
-> (K=32: 222, 182, 151 and 193 ms).
+> Two more hosts (the same CPU on Linux 7.2.11, and a 2x EPYC 9755) give the
+> same ordering (K=32 on the first: 223, 163, 138 and 199 ms).
 >
 > One 32-thread link makes 14,000 to 30,000 `sched_yield` calls (about
 > 1,000 at 4 threads), so much of the extra CPU looks like idle workers

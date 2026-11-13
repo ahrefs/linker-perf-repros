@@ -1,0 +1,25 @@
+CPUs 0-31 before the run (mpstat, 5 s):
+mean idle 99%, min idle 89%
+free 2 MiB and 4 MiB blocks per node before the run (/proc/buddyinfo order 9, 10):
+  node 0, order9=1333 order10=138
+  node 1, order9=941 order10=25
+  node 2, order9=2979 order10=1373
+  node 3, order9=3892 order10=762
+  node 4, order9=9825 order10=3263
+  node 5, order9=8071 order10=18330
+  node 6, order9=4088 order10=20481
+  node 7, order9=6118 order10=12862
+
+Run with MOLD_JOBS=1 in the environment.
+
+kernel 7.2.9+deb13-amd64, nproc 256, affinity 32 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+output 34.1 MiB, 400 objects, out dir /dev/shm/lpr-tp-2254990/out
+loadavg before: 123.15 57.64 34.50 4/53403 2337376
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+|---|---|---|---|---|---|---|
+| mold | default | 32 | 744 | 746 | 442 | 0 |
+| mold | 1 | 32 | 2852 | 2856 | 95 | 0 |
+
+loadavg after: 79.33 53.35 33.82 6/53284 2346647
