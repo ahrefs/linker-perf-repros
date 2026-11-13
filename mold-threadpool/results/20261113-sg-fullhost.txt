@@ -1,0 +1,51 @@
+All CPUs before the run (mpstat, 5 s): idle 98.20%
+free 2 MiB and 4 MiB blocks per node before the run (/proc/buddyinfo order 9, 10):
+  node 0, order9=559 order10=147
+  node 1, order9=29 order10=0
+  node 2, order9=1688 order10=1609
+  node 3, order9=2333 order10=766
+  node 4, order9=8403 order10=3878
+  node 5, order9=6684 order10=18331
+  node 6, order9=2457 order10=20582
+  node 7, order9=4836 order10=12863
+
+kernel 7.2.9+deb13-amd64, nproc 256, affinity 256 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+lld: Debian LLD 19.1.7 (compatible with GNU linkers)
+output 34.1 MiB, 400 objects, out dir /dev/shm/lpr-full-2375479/out
+loadavg before: 7.41 12.72 20.65 51/53399 2378275
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+|---|---|---|---|---|---|---|
+| mold | default | 1 | 40 | 41 | 761 | 39 |
+| mold | 4 | 1 | 43 | 45 | 156 | 0 |
+| mold | 1 | 1 | 120 | 125 | 125 | 16 |
+| lld | default | 1 | 106 | 106 | 410 | 0 |
+| lld | 4 | 1 | 109 | 109 | 228 | 0 |
+| lld | 1 | 1 | 133 | 133 | 133 | 0 |
+| mold | default | 32 | 130 | 133 | 693 | 7027 |
+| mold | 4 | 32 | 84 | 86 | 211 | 1126 |
+| mold | 1 | 32 | 135 | 140 | 117 | 669 |
+| lld | default | 32 | 133 | 133 | 330 | 0 |
+| lld | 4 | 32 | 131 | 131 | 212 | 0 |
+| lld | 1 | 32 | 153 | 153 | 135 | 0 |
+| mold | default | 64 | 249 | 252 | 662 | 7200 |
+| mold | 4 | 64 | 139 | 143 | 324 | 3662 |
+| mold | 1 | 64 | 197 | 202 | 144 | 2891 |
+| lld | default | 64 | 176 | 176 | 344 | 0 |
+| lld | 4 | 64 | 173 | 173 | 274 | 0 |
+| lld | 1 | 64 | 184 | 184 | 147 | 0 |
+| mold | default | 128 | 440 | 444 | 602 | 15117 |
+| mold | 4 | 128 | 230 | 232 | 329 | 667 |
+| mold | 1 | 128 | 325 | 330 | 197 | 4715 |
+| lld | default | 128 | 286 | 286 | 351 | 0 |
+| lld | 4 | 128 | 300 | 300 | 336 | 0 |
+| lld | 1 | 128 | 293 | 293 | 187 | 0 |
+| mold | default | 256 | 765 | 768 | 540 | 3477 |
+| mold | 4 | 256 | 440 | 443 | 358 | 410 |
+| mold | 1 | 256 | 462 | 465 | 256 | 5648 |
+| lld | default | 256 | 523 | 523 | 368 | 0 |
+| lld | 4 | 256 | 537 | 537 | 330 | 0 |
+| lld | 1 | 256 | 484 | 484 | 265 | 0 |
+
+loadavg after: 154.12 51.45 33.30 42/53351 2630232

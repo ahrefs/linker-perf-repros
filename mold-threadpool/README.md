@@ -24,6 +24,9 @@ MOLD=/path/to/mold-3.0.0-x86_64-linux/bin/mold
   --busy 32 --busy-ms 500 mold=$MOLD lld=ld.lld-19
 MOLD_JOBS=1 ./repro.py --cpus 0-31 --work /dev/shm/mold-threadpool-work \
   --jobs 32 --threads default,1 mold=$MOLD
+# whole host, K up to the number of CPU threads
+./repro.py --work /dev/shm/mold-threadpool-work --jobs 1,32,64,128,256 \
+  mold=$MOLD lld=ld.lld-19
 ```
 
 `repro.py` compiles a 400-object C program with debug info (34 MiB PIE),
@@ -125,12 +128,49 @@ With THP `defrag` set to `madvise`, a page fault in such a region compacts
 memory synchronously when the local NUMA node has no free 2 MiB block. Before
 the links run, the NUMA nodes of CPUs 0-31 had 259 and 718 free 2 MiB blocks
 on sg and 515 on uk, against 2,086 on us, which had no stalls. The stalls cost
-little this time: uk at K=32 took 232 ms with the default, us 223 ms.
+little this time: on uk, K=32 with the default took 232 ms with 1,015 stalls,
+and 213 ms with none in a shorter run (3 batches) earlier that day.
 
 They can cost a lot more. On 2026-11-11 devbox-uk had run out of free 2 MiB
 blocks, and mold spent about three quarters of its CPU in compaction: one
 link with default threads took 395 ms and 6.3 s of CPU
 (`results/20261111-uk-*`, `results/20261111-uk-compaction.txt`).
+
+### Whole host, K up to the number of CPU threads (2026-11-13)
+
+Same program, not pinned, K up to 256 on sg and us and 512 on uk. mold's
+default is still 32 threads per link; lld's default is one thread per CPU.
+All CPUs were 98-99% idle before each run. devbox-us had no compaction
+stalls. Wall time until the last link finished, ms:
+
+| K | mold default | mold `--threads=4` | mold `--threads=1` | lld default |
+|---|---|---|---|---|
+| 1 | 25 | 46 | 100 | 96 |
+| 32 | 107 | 71 | 124 | 126 |
+| 64 | 192 | 118 | 149 | 202 |
+| 128 | 331 | 209 | 235 | 343 |
+| 256 | 639 | 379 | 370 | 763 |
+
+CPU per mold link on devbox-us: 472-597 ms with the default at every K,
+104-228 ms with `--threads=1`.
+
+K equal to the number of CPU threads on each host, plus K=256 on uk, with the
+compaction stalls of the cell in parentheses when there were any:
+
+| host | K | mold default | mold `--threads=4` | mold `--threads=1` | lld default |
+|---|---|---|---|---|---|
+| sg | 256 | 765 (3,477) | 440 (410) | 462 (5,648) | 523 |
+| us | 256 | 639 | 379 | 370 | 763 |
+| uk | 256 | 545 | 303 | 284 (2,007) | 707 |
+| uk | 512 | 1,071 (16,268) | 563 | 500 (2,070) | 1,404 |
+
+- A lone link is fastest with the default. From K=64 the default is the
+  slowest mold setting on all three hosts, and at K=256 it takes 1.7x to
+  1.9x the `--threads=1` wall.
+- `--threads=4` is the fastest mold setting from K=32 to K=128 on all three
+  hosts.
+- lld's default is slower than mold's at K=256 and above on us and uk. On
+  sg, where most mold cells had compaction stalls, it is not.
 
 ## Upstream context
 
@@ -176,7 +216,9 @@ Body:
 > `MOLD_JOBS=1` at K=32 takes 737 ms, because it serializes the links.
 >
 > Two more hosts (the same CPU on Linux 7.2.11, and a 2x EPYC 9755) give the
-> same ordering (K=32 on the first: 223, 163, 138 and 199 ms).
+> same ordering (K=32 on the first: 223, 163, 138 and 199 ms). Unpinned on
+> that 256-CPU host, the default takes 1.4x the `--threads=1` wall at K=128
+> (331 vs 235 ms) and 1.7x at K=256 (639 vs 370 ms).
 >
 > One 32-thread link makes 14,000 to 30,000 `sched_yield` calls (about
 > 1,000 at 4 threads), so much of the extra CPU looks like idle workers

@@ -1,0 +1,45 @@
+All CPUs before the run (mpstat, 5 s): idle 99.28%
+free 2 MiB and 4 MiB blocks per node before the run (/proc/buddyinfo order 9, 10):
+  node 0, order9=1836 order10=1312
+  node 1, order9=1670 order10=1191
+
+kernel 7.2.11+deb13-amd64, nproc 256, affinity 256 CPUs
+mold: mold 3.0.0 (8de38c35a2df16a25f7ff87ac3ad07156a925beb; compatible with GNU ld)
+lld: Debian LLD 19.1.7 (compatible with GNU linkers)
+output 34.1 MiB, 400 objects, out dir /dev/shm/lpr-full-125398/out
+loadavg before: 101.82 49.91 32.16 2/33812 126937
+
+| linker | --threads | K | links done ms | batch done ms | CPU ms / link | compaction stalls |
+|---|---|---|---|---|---|---|
+| mold | default | 1 | 25 | 27 | 585 | 0 |
+| mold | 4 | 1 | 46 | 49 | 173 | 0 |
+| mold | 1 | 1 | 100 | 104 | 104 | 0 |
+| lld | default | 1 | 96 | 96 | 364 | 0 |
+| lld | 4 | 1 | 86 | 86 | 172 | 0 |
+| lld | 1 | 1 | 136 | 136 | 135 | 0 |
+| mold | default | 32 | 107 | 111 | 597 | 0 |
+| mold | 4 | 32 | 71 | 73 | 192 | 0 |
+| mold | 1 | 32 | 124 | 130 | 110 | 0 |
+| lld | default | 32 | 126 | 126 | 340 | 0 |
+| lld | 4 | 32 | 119 | 119 | 217 | 0 |
+| lld | 1 | 32 | 154 | 154 | 141 | 0 |
+| mold | default | 64 | 192 | 195 | 531 | 0 |
+| mold | 4 | 64 | 118 | 120 | 274 | 0 |
+| mold | 1 | 64 | 149 | 154 | 122 | 0 |
+| lld | default | 64 | 202 | 202 | 402 | 0 |
+| lld | 4 | 64 | 175 | 175 | 287 | 0 |
+| lld | 1 | 64 | 189 | 189 | 162 | 0 |
+| mold | default | 128 | 331 | 334 | 483 | 0 |
+| mold | 4 | 128 | 209 | 212 | 308 | 0 |
+| mold | 1 | 128 | 235 | 240 | 157 | 0 |
+| lld | default | 128 | 343 | 343 | 395 | 0 |
+| lld | 4 | 128 | 302 | 302 | 381 | 0 |
+| lld | 1 | 128 | 291 | 291 | 228 | 0 |
+| mold | default | 256 | 639 | 641 | 472 | 0 |
+| mold | 4 | 256 | 379 | 381 | 315 | 0 |
+| mold | 1 | 256 | 370 | 375 | 228 | 0 |
+| lld | default | 256 | 763 | 763 | 409 | 0 |
+| lld | 4 | 256 | 604 | 604 | 382 | 0 |
+| lld | 1 | 256 | 592 | 592 | 461 | 0 |
+
+loadavg after: 349.55 128.30 59.99 1/34190 378456
